@@ -1,32 +1,48 @@
 import java.io.File;
-import java.util.concurrent.ForkJoinPool;
+import java.util.HashMap;
+//import java.util.concurrent.ForkJoinPool;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class Main {
+
     public static void main(String[] args) {
-        String folderPath = "/users/igorklein/IdeaProjects";
+        for (int i = 0; i <args.length; i++) {
+            System.out.println(i + " => " + args[i]);
+        }
+//        System.exit(0);
+
+//        users/igorklein/Downloads  IdeaProjects/BiggestFolderFinder
+        String[] argums = {"-d", "/users/igorklein/Downloads", "-l", "100M"};
+//        System.out.println("rrr");
+        ParametersBag bag = new ParametersBag(argums);
+//        System.out.println("4444");
+
+//        String folderPath = "/users/igorklein/Downloads";
+
+
+//        String folderPath = "/users/igorklein/IdeaProjects";
+
+        String folderPath = bag.getPath();
+
+//        long sizeLimit = 50 * 1024 * 1024;
+        long sizeLimit = bag.getLimit();
         File file = new File(folderPath);
-//        System.out.println(file.length());
+        Node root = new Node(file, sizeLimit);
+        System.out.println("444-55");
 
 //        System.out.println(System.getProperties().get("user.dir")); // ! BiggestFolderFinder
 //
 //        System.out.println("getFolderSize = " + getFolderSize(file)); // ! 5_944_955 это байты
 
-        FolderSizeCalculator calculator = new FolderSizeCalculator(file);
+        FolderSizeCalculator calculator = new FolderSizeCalculator(root);
         ForkJoinPool pool = new ForkJoinPool();
         long size = (long) pool.invoke(calculator);
-        System.out.println("size long" + size);
-    }
+        System.out.println("root = " + root);
 
-    public static long getFolderSize(File folder) {
-        if (folder.isFile()) {
-            return folder.length();
-        }
-
-        long sum = 0;
-        File[] files = folder.listFiles();
-        for (File file : files) {
-            sum += getFolderSize(file);
-        }
-        return sum;
+        System.out.println("root.getSize() = " + root.getSize());
+        System.out.println("size long 1 var" + size);
+//        System.out.println("getSizeFromHumanReadable(\"235K\") = " + getSizeFromHumanReadable("235K")); // ! 240640
+//        System.out.println("getHumanReadableSize(240640) = " + getHumanReadableSize(240640)); // ! 240640
     }
 }
